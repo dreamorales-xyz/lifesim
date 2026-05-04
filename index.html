@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeSim — Your Story</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Syne+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#08080a;--s1:#0e0e11;--s2:#14141a;--s3:#1a1a22;--s4:#20202a;
+  --border:#28283a;--border2:#34344a;
+  --gold:#d4a853;--blue:#5b8fd4;--pink:#c45f84;--green:#5ab87a;
+  --purple:#8a5fd4;--orange:#c4804a;--teal:#4ab8b8;--red:#c45050;
+  --text:#eae7df;--muted:#606068;--muted2:#404048;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;background:var(--bg);}
+body{font-family:'DM Sans',sans-serif;color:var(--text);display:flex;flex-direction:column;height:100dvh;}
+
+/* ── CHARACTER CREATOR ── */
+#creator {
+position:fixed;inset:0;z-index:200;background:var(–bg);
+display:flex;align-items:center;justify-content:center;
+overflow-y:auto;padding:20px;
+}
+.creator-card {
+background:var(–s1);border:1px solid var(–border);border-radius:20px;
+width:100%;max-width:480px;padding:28px;
+}
+.creator-title {
+font-family:‘Syne’,sans-serif;font-size:22px;font-weight:800;color:var(–gold);
+margin-bottom:4px;
+}
+.creator-sub {
+font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–muted);margin-bottom:24px;
+}
+.c-section { margin-bottom:20px; }
+.c-label {
+font-family:‘Syne’,sans-serif;font-size:10px;font-weight:700;
+color:var(–muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;
+}
+.c-input {
+width:100%;background:var(–s2);border:1px solid var(–border);border-radius:10px;
+padding:10px 13px;color:var(–text);font-family:‘DM Sans’,sans-serif;font-size:14px;
+outline:none;transition:border-color .2s;
+}
+.c-input:focus{border-color:var(–gold);}
+.c-row { display:flex;gap:8px; }
+.c-select {
+flex:1;background:var(–s2);border:1px solid var(–border);border-radius:10px;
+padding:10px 13px;color:var(–text);font-family:‘DM Sans’,sans-serif;font-size:13px;
+outline:none;cursor:pointer;appearance:none;
+}
+.c-select:focus{border-color:var(–gold);}
+
+/* Country grid */
+.country-grid {
+display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+max-height:260px;overflow-y:auto;
+}
+.country-grid::-webkit-scrollbar{width:3px;}
+.country-grid::-webkit-scrollbar-thumb{background:var(–border);}
+.country-btn {
+padding:7px 8px;border-radius:8px;border:1px solid var(–border);
+background:var(–s2);cursor:pointer;transition:all .15s;text-align:left;
+}
+.country-btn:hover{border-color:var(–border2);}
+.country-btn.selected{border-color:var(–gold);background:var(–s3);}
+.cb-flag{font-size:16px;display:block;margin-bottom:2px;}
+.cb-name{font-family:‘Syne Mono’,monospace;font-size:9px;color:var(–text);}
+
+/* Trait pills */
+.trait-grid{display:flex;flex-wrap:wrap;gap:5px;}
+.trait-btn{
+padding:5px 10px;border-radius:20px;border:1px solid var(–border);
+background:transparent;color:var(–muted);font-family:‘Syne Mono’,monospace;
+font-size:10px;cursor:pointer;transition:all .15s;
+}
+.trait-btn:hover{border-color:var(–border2);color:var(–text);}
+.trait-btn.selected{border-color:var(–gold);color:var(–gold);background:var(–goldf,#d4a85318);}
+
+.start-btn {
+width:100%;padding:13px;border-radius:12px;border:none;
+background:var(–gold);color:#08080a;font-family:‘Syne’,sans-serif;
+font-size:14px;font-weight:800;letter-spacing:.04em;cursor:pointer;
+transition:opacity .2s;margin-top:6px;
+}
+.start-btn:hover{opacity:.88;}
+.start-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── MAIN APP ── */
+#app{display:none;flex:1;flex-direction:column;height:100dvh;}
+#app.visible{display:flex;}
+
+/* TOP BAR */
+.topbar{
+display:flex;align-items:center;background:var(–s1);
+border-bottom:1px solid var(–border);flex-shrink:0;height:48px;
+}
+.brand{
+padding:0 14px;font-family:‘Syne’,sans-serif;font-size:13px;font-weight:800;
+color:var(–gold);border-right:1px solid var(–border);height:100%;
+display:flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.brand em{font-style:normal;font-weight:400;color:var(–muted);font-size:11px;}
+.topbar-acts{display:flex;height:100%;}
+.tba{
+padding:0 12px;height:100%;border:none;background:transparent;
+color:var(–muted);font-family:‘Syne’,sans-serif;font-size:9px;font-weight:700;
+letter-spacing:.07em;text-transform:uppercase;cursor:pointer;
+border-right:1px solid var(–border);transition:all .15s;white-space:nowrap;
+}
+.tba:hover{color:var(–text);background:var(–s2);}
+.topbar-stats{
+margin-left:auto;display:flex;align-items:center;gap:8px;
+padding:0 12px;border-left:1px solid var(–border);height:100%;
+}
+.stat-chip{
+display:flex;align-items:center;gap:4px;
+font-family:‘Syne Mono’,monospace;font-size:11px;
+}
+.loc-chip{
+padding:3px 8px;border-radius:20px;background:var(–s2);
+border:1px solid var(–border);font-family:‘Syne Mono’,monospace;
+font-size:10px;color:var(–muted);white-space:nowrap;
+}
+.time-display{
+display:flex;align-items:center;gap:5px;padding:4px 10px;
+border-radius:20px;background:var(–s2);border:1px solid var(–border);flex-shrink:0;
+}
+.td-day{font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–muted);}
+.td-date{font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–text);}
+.td-year{font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–gold);font-weight:700;}
+.td-age{font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–muted);border-left:1px solid var(–border);padding-left:6px;}
+
+/* LAYOUT */
+.app-body{flex:1;display:flex;overflow:hidden;}
+
+/* LEFT */
+.left{
+width:220px;flex-shrink:0;background:var(–s1);
+border-right:1px solid var(–border);display:flex;flex-direction:column;overflow:hidden;
+}
+
+/* Character panel */
+.char-panel{padding:12px;border-bottom:1px solid var(–border);}
+.char-top{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+.char-av{
+width:38px;height:38px;border-radius:10px;
+display:flex;align-items:center;justify-content:center;font-size:18px;
+border:1.5px solid var(–gold);
+}
+.char-name{font-family:‘Syne’,sans-serif;font-size:12px;font-weight:800;color:var(–gold);}
+.char-sub{font-family:‘Syne Mono’,monospace;font-size:9px;color:var(–muted);margin-top:1px;}
+.age-badge{
+margin-left:auto;padding:3px 7px;border-radius:20px;
+background:var(–s3);border:1px solid var(–border);
+font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–gold);
+}
+.stat-rows{display:flex;flex-direction:column;gap:4px;}
+.srow{display:flex;align-items:center;gap:5px;}
+.sl{font-family:‘Syne Mono’,monospace;font-size:8px;color:var(–muted);width:30px;flex-shrink:0;}
+.sbar{flex:1;height:3px;background:var(–s4);border-radius:2px;overflow:hidden;}
+.sf{height:100%;border-radius:2px;transition:width .4s ease;}
+.sv{font-family:‘Syne Mono’,monospace;font-size:8px;color:var(–muted);width:20px;text-align:right;}
+
+/* Left tabs */
+.ltabs{display:flex;border-bottom:1px solid var(–border);flex-shrink:0;}
+.ltab{
+flex:1;padding:7px 0;border:none;background:transparent;
+color:var(–muted);font-family:‘Syne’,sans-serif;font-size:9px;
+font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .15s;
+}
+.ltab:hover{color:var(–text);}
+.ltab.active{color:var(–gold);border-bottom:2px solid var(–gold);}
+.lbody{flex:1;overflow-y:auto;padding:5px;}
+.lbody::-webkit-scrollbar{width:2px;}
+.lbody::-webkit-scrollbar-thumb{background:var(–border);}
+
+/* Zone / location */
+.zone-g{margin-bottom:5px;}
+.zone-hdr{
+display:flex;align-items:center;gap:6px;padding:5px 6px;
+cursor:pointer;border-radius:6px;transition:background .15s;user-select:none;
+}
+.zone-hdr:hover{background:var(–s2);}
+.zflag{font-size:13px;}
+.zlabel{font-family:‘Syne’,sans-serif;font-size:9px;font-weight:700;color:var(–muted);letter-spacing:.06em;text-transform:uppercase;flex:1;}
+.zarrow{font-size:9px;color:var(–muted);transition:transform .2s;}
+.zone-hdr.collapsed .zarrow{transform:rotate(-90deg);}
+.zone-locs{padding-left:4px;}
+.zone-locs.hidden{display:none;}
+.loc-btn{
+width:100%;padding:5px 8px;border-radius:7px;border:none;
+background:transparent;color:var(–muted);font-family:‘DM Sans’,sans-serif;
+font-size:11px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:6px;
+transition:all .15s;margin-bottom:1px;
+}
+.loc-btn:hover{background:var(–s2);color:var(–text);}
+.loc-btn.active{background:var(–s3);color:var(–gold);border:1px solid var(–border);}
+.loc-btn.locked{opacity:.35;cursor:not-allowed;}
+.lem{font-size:12px;width:16px;text-align:center;flex-shrink:0;}
+.linfo{flex:1;min-width:0;}
+.lname{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lfare{font-family:‘Syne Mono’,monospace;font-size:9px;color:var(–muted2);margin-top:1px;}
+
+/* NPC list */
+.npc-row{
+width:100%;padding:5px 7px;border-radius:7px;border:none;background:transparent;
+cursor:pointer;text-align:left;display:flex;align-items:center;gap:7px;
+transition:all .15s;margin-bottom:1px;
+}
+.npc-row:hover{background:var(–s2);}
+.npc-row.active{background:var(–s3);border:1px solid var(–border);}
+.npc-row.locked{opacity:.35;cursor:not-allowed;}
+.nav-s{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.ninf{flex:1;min-width:0;}
+.nnm{font-size:11px;color:var(–text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nrl{font-family:‘Syne Mono’,monospace;font-size:9px;color:var(–muted2);margin-top:1px;}
+.here-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+
+/* CHAT */
+.chat{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.chat-hdr{
+padding:10px 14px;border-bottom:1px solid var(–border);background:var(–s1);
+display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.chat-av{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.chat-nm{font-family:‘Syne’,sans-serif;font-size:13px;font-weight:700;}
+.chat-mt{font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–muted);margin-top:2px;}
+.chat-hdr-r{margin-left:auto;display:flex;align-items:center;gap:7px;}
+.online-dot{width:6px;height:6px;border-radius:50%;background:#4caf7d;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.loc-badge{padding:3px 8px;border-radius:20px;background:var(–s2);border:1px solid var(–border);font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–muted);}
+
+.msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth;}
+.msgs::-webkit-scrollbar{width:3px;}
+.msgs::-webkit-scrollbar-thumb{background:var(–border);border-radius:2px;}
+
+.msg{display:flex;gap:8px;align-items:flex-start;animation:fu .2s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.msg.me{flex-direction:row-reverse;}
+.mav{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px;}
+.mbody{max-width:68%;display:flex;flex-direction:column;gap:2px;}
+.msg.me .mbody{align-items:flex-end;}
+.mwho{font-family:‘Syne Mono’,monospace;font-size:9px;padding:0 3px;letter-spacing:.03em;}
+.mbub{padding:8px 11px;border-radius:12px;font-size:13.5px;line-height:1.65;}
+.msg.me .mbub{background:#1c1208;border:1px solid #332008;border-top-right-radius:3px;}
+.msg.npc .mbub{background:var(–s2);border:1px solid var(–border);border-top-left-radius:3px;}
+.mact{font-style:italic;font-size:11.5px;color:var(–muted);font-family:‘DM Sans’,sans-serif;padding:0 3px;}
+.sys{text-align:center;font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–muted2);padding:4px 0;letter-spacing:.04em;}
+.world-ev{background:var(–s2);border:1px solid var(–border2);border-radius:9px;padding:8px 12px;font-family:‘Syne Mono’,monospace;font-size:11px;color:var(–muted);text-align:center;animation:fu .2s ease;}
+.world-ev strong{color:var(–gold);}
+.narr{background:var(–s3);border-left:3px solid var(–gold);border-radius:0 9px 9px 0;padding:10px 14px;font-size:13px;line-height:1.7;color:var(–text);font-style:italic;animation:fu .2s ease;}
+.event-card{background:var(–s2);border:1px solid var(–border2);border-radius:10px;padding:12px 14px;animation:fu .2s ease;}
+.event-card h4{font-family:‘Syne’,sans-serif;font-size:13px;font-weight:700;color:var(–gold);margin-bottom:4px;}
+.event-card p{font-family:‘Syne Mono’,monospace;font-size:11px;color:var(–muted);margin-bottom:10px;line-height:1.5;}
+.event-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.ev-yes{padding:6px 13px;border-radius:7px;border:none;background:var(–gold);color:#08080a;font-family:‘Syne Mono’,monospace;font-size:11px;cursor:pointer;}
+.ev-no{padding:6px 13px;border-radius:7px;border:1px solid var(–border);background:transparent;color:var(–muted);font-family:‘Syne Mono’,monospace;font-size:11px;cursor:pointer;}
+
+.typing-wrap{display:flex;gap:8px;align-items:center;}
+.typing-dots{padding:8px 12px;background:var(–s2);border:1px solid var(–border);border-radius:12px;border-top-left-radius:3px;display:flex;gap:4px;}
+.typing-dots span{width:5px;height:5px;border-radius:50%;background:var(–muted);animation:td 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s}.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+
+/* Input */
+.input-area{border-top:1px solid var(–border);background:var(–s1);padding:10px 13px;flex-shrink:0;}
+.input-who{font-family:‘Syne Mono’,monospace;font-size:9px;color:var(–gold);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase;}
+.quick-wrap{display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap;}
+.qb{padding:3px 8px;border-radius:20px;border:1px solid var(–border);background:transparent;color:var(–muted);font-size:10px;font-family:‘Syne Mono’,monospace;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.qb:hover{border-color:var(–gold);color:var(–gold);}
+.input-row{display:flex;gap:7px;align-items:flex-end;}
+textarea{flex:1;background:var(–s2);border:1px solid var(–border);border-radius:10px;padding:9px 12px;color:var(–text);font-family:‘DM Sans’,sans-serif;font-size:13.5px;resize:none;min-height:40px;max-height:100px;outline:none;transition:border-color .2s;line-height:1.5;}
+textarea:focus{border-color:var(–gold);}
+textarea::placeholder{color:var(–muted);}
+.send-btn{width:40px;height:40px;border-radius:10px;background:var(–gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#08080a;flex-shrink:0;transition:opacity .2s,transform .1s;}
+.send-btn:hover{opacity:.85}.send-btn:active{transform:scale(.93)}.send-btn:disabled{opacity:.3;cursor:not-allowed;}
+
+/* Age up button */
+.age-up-btn{
+margin:8px 13px 0;width:calc(100% - 26px);padding:7px;border-radius:8px;
+border:1px solid var(–border2);background:transparent;
+color:var(–gold);font-family:‘Syne Mono’,monospace;font-size:10px;
+cursor:pointer;transition:all .15s;letter-spacing:.04em;
+}
+.age-up-btn:hover{background:var(–s3);}
+
+/* Right */
+.right{width:185px;flex-shrink:0;background:var(–s1);border-left:1px solid var(–border);display:flex;flex-direction:column;overflow:hidden;}
+.rhdr{padding:9px 12px;border-bottom:1px solid var(–border);font-family:‘Syne’,sans-serif;font-size:9px;font-weight:700;color:var(–muted);letter-spacing:.1em;text-transform:uppercase;}
+.rbody{flex:1;overflow-y:auto;padding:6px;}
+.rbody::-webkit-scrollbar{width:2px;}
+.npc-here{padding:7px 9px;background:var(–s2);border:1px solid var(–border);border-radius:8px;margin-bottom:4px;cursor:pointer;transition:all .15s;}
+.npc-here:hover{border-color:var(–border2);}
+.npc-here.talking{border-color:var(–gold);}
+.nh-top{display:flex;align-items:center;gap:6px;margin-bottom:2px;}
+.nh-av{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;}
+.nh-name{font-family:‘Syne’,sans-serif;font-size:11px;font-weight:600;}
+.nh-rel{font-family:‘Syne Mono’,monospace;font-size:9px;color:var(–muted);}
+.nobody{font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–muted2);padding:10px;text-align:center;}
+
+/* MODALS */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(3px);z-index:99;}
+.overlay.open{display:block;}
+.modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;}
+.modal.open{display:flex;}
+.mc{background:var(–s1);border:1px solid var(–border);border-radius:16px;width:320px;max-height:82vh;overflow-y:auto;padding:20px;animation:pi .2s ease;}
+@keyframes pi{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.mt{font-family:‘Syne’,sans-serif;font-size:16px;font-weight:800;color:var(–gold);margin-bottom:3px;}
+.msub{font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–muted);margin-bottom:14px;}
+.mc-close{width:100%;padding:8px;border-radius:8px;border:1px solid var(–border);background:transparent;color:var(–muted);font-family:‘Syne Mono’,monospace;font-size:11px;cursor:pointer;margin-top:10px;transition:all .15s;}
+.mc-close:hover{border-color:var(–gold);color:var(–gold);}
+
+/* Inventory */
+.inv-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;}
+.inv-item{padding:8px;background:var(–s2);border:1px solid var(–border);border-radius:8px;}
+.iiem{font-size:16px;margin-bottom:3px;}
+.iinm{font-family:‘Syne’,sans-serif;font-size:11px;font-weight:600;}
+.iidesc{font-family:‘Syne Mono’,monospace;font-size:9px;color:var(–muted);margin-top:2px;}
+.inv-add{display:flex;gap:5px;}
+.ii{flex:1;background:var(–s2);border:1px solid var(–border);border-radius:8px;padding:7px 10px;color:var(–text);font-family:‘Syne Mono’,monospace;font-size:11px;outline:none;}
+.ii:focus{border-color:var(–gold);}
+.iisub{padding:7px 11px;border-radius:8px;border:none;background:var(–gold);color:#08080a;font-family:‘Syne Mono’,monospace;font-size:10px;cursor:pointer;}
+
+/* Saves */
+.save-list{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;max-height:180px;overflow-y:auto;}
+.svi{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(–s2);border:1px solid var(–border);border-radius:7px;}
+.svnm{font-size:12px;}.svdt{font-family:‘Syne Mono’,monospace;font-size:9px;color:var(–muted);margin-top:1px;}
+.svbtns{display:flex;gap:3px;}
+.sbt{padding:3px 7px;border-radius:5px;border:1px solid var(–border);background:transparent;font-family:‘Syne Mono’,monospace;font-size:9px;cursor:pointer;transition:all .15s;}
+.sbt.ld{color:var(–blue)}.sbt.ld:hover{border-color:var(–blue)}
+.sbt.dl{color:var(–muted)}.sbt.dl:hover{border-color:var(–red);color:var(–red)}
+.no-saves{text-align:center;font-family:‘Syne Mono’,monospace;font-size:11px;color:var(–muted);padding:12px;}
+.sav-acts{display:flex;gap:6px;}
+.svbtn{flex:1;padding:8px;border-radius:8px;border:1px solid var(–border);background:transparent;color:var(–text);font-family:‘Syne Mono’,monospace;font-size:11px;cursor:pointer;transition:all .15s;}
+.svbtn:hover{border-color:var(–gold);color:var(–gold)}
+.svbtn.p{background:var(–gold);color:#08080a;border-color:var(–gold)}
+.svbtn.p:hover{opacity:.85}
+
+/* Profile prows */
+.prow{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(–border);}
+.prow:last-child{border:none;}
+.pl{font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–muted);}
+.pr{font-size:12px;color:var(–text);text-align:right;max-width:60%;}
+.psect{font-family:‘Syne’,sans-serif;font-size:9px;font-weight:700;color:var(–muted);letter-spacing:.1em;text-transform:uppercase;margin:12px 0 6px;}
+.pbio{background:var(–s2);border:1px solid var(–border);border-radius:8px;padding:9px;font-size:12px;line-height:1.7;color:var(–text);font-style:italic;margin-top:6px;}
+
+@media(max-width:660px){.left,.right{display:none;}}
+</style>
+
+</head>
+<body>
+
+<!-- ══ CHARACTER CREATOR ══ -->
+
+<div id="creator">
+  <div class="creator-card">
+    <div class="creator-title">✦ New Life</div>
+    <div class="creator-sub">create your character · your story starts at birth</div>
+
+```
+<div class="c-section">
+  <div class="c-label">First Name</div>
+  <input class="c-input" id="cName" placeholder="e.g. Kai, Alex, Mira…" oninput="checkReady()">
+</div>
+
+<div class="c-section">
+  <div class="c-label">Gender</div>
+  <div class="c-row">
+    <select class="c-select" id="cGender">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+      <option value="nonbinary">Non-binary</option>
+    </select>
+  </div>
+</div>
+
+<div class="c-section">
+  <div class="c-label">Birth Country <span style="color:var(--muted);font-size:9px">— tap to select</span></div>
+  <div class="country-grid" id="countryGrid"></div>
+</div>
+
+<div class="c-section">
+  <div class="c-label">Starting Traits <span style="color:var(--muted);font-size:9px">— pick up to 3</span></div>
+  <div class="trait-grid" id="traitGrid"></div>
+</div>
+
+<div class="c-section">
+  <div class="c-label">Birth Year</div>
+  <select class="c-select" id="cYear">
+    <option value="1990">1990s (starts 90s)</option>
+    <option value="2000">2000s (starts 2000s)</option>
+    <option value="2005" selected>2005 (teen in 2023)</option>
+    <option value="2010">2010 (kid in 2023)</option>
+  </select>
+</div>
+
+<button class="start-btn" id="startBtn" disabled onclick="startGame()">Begin Life →</button>
+```
+
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+
+<div id="app">
+
+<div class="topbar">
+  <div class="brand">LIFESIM <em id="brandName">/ ...</em></div>
+  <div class="topbar-acts">
+    <button class="tba" id="pauseBtn" onclick="togglePause()" title="Pause/Resume">⏸</button>
+    <button class="tba" onclick="cycleSpeed()" id="speedBtn" title="Change speed">1×</button>
+    <button class="tba" onclick="openModal('invModal')">🎒 Bag</button>
+    <button class="tba" onclick="openModal('profModal')">👤 Profile</button>
+    <button class="tba" onclick="openModal('saveModal')">💾 Save</button>
+  </div>
+  <div class="topbar-stats">
+    <div class="time-display" id="timeDisplay">
+      <span class="td-day" id="tdDay">Mon</span>
+      <span class="td-date" id="tdDate">Jan 1</span>
+      <span class="td-year" id="tdYear">2005</span>
+      <span class="td-age" id="tdAge">Age 0</span>
+    </div>
+    <div class="stat-chip"><span>😐</span><span id="tMood">70</span></div>
+    <div class="stat-chip"><span>⚡</span><span id="tEnergy">80</span></div>
+    <div class="stat-chip"><span>💵</span><span id="tMoney">$0</span></div>
+    <div class="loc-chip" id="tLoc">🏠 Home</div>
+  </div>
+</div>
+
+<div class="app-body">
+
+<!-- LEFT -->
+
+<div class="left">
+  <div class="char-panel">
+    <div class="char-top">
+      <div class="char-av" id="charAv" style="background:var(--s3)">👶</div>
+      <div style="flex:1">
+        <div class="char-name" id="charName">—</div>
+        <div class="char-sub" id="charSub">Age 0 · Newborn</div>
+      </div>
+      <div class="age-badge" id="ageBadge">0</div>
+    </div>
+    <div class="stat-rows">
+      <div class="srow"><div class="sl">MOOD</div><div class="sbar"><div class="sf" id="sMood" style="width:70%;background:var(--green)"></div></div><div class="sv" id="sMoodV">70</div></div>
+      <div class="srow"><div class="sl">HEALTH</div><div class="sbar"><div class="sf" id="sHealth" style="width:80%;background:var(--blue)"></div></div><div class="sv" id="sHealthV">80</div></div>
+      <div class="srow"><div class="sl">SMART</div><div class="sbar"><div class="sf" id="sSmart" style="width:50%;background:var(--purple)"></div></div><div class="sv" id="sSmartV">50</div></div>
+      <div class="srow"><div class="sl">SOCIAL</div><div class="sbar"><div class="sf" id="sSocial" style="width:50%;background:var(--pink)"></div></div><div class="sv" id="sSocialV">50</div></div>
+      <div class="srow"><div class="sl">MONEY</div><div class="sbar"><div class="sf" id="sMoney" style="width:5%;background:var(--gold)"></div></div><div class="sv" id="sMoneyV">$0</div></div>
+    </div>
+  </div>
+  <div class="ltabs">
+    <button class="ltab active" onclick="switchLTab('world',this)">World</button>
+    <button class="ltab" onclick="switchLTab('people',this)">People</button>
+  </div>
+  <div class="lbody" id="lbody"></div>
+  <button class="age-up-btn" onclick="ageUp()">⏭ Age Up — skip 1 year</button>
+</div>
+
+<!-- CHAT -->
+
+<div class="chat">
+  <div class="chat-hdr">
+    <div class="chat-av" id="hAv" style="background:var(--s3);border:1.5px solid var(--muted)">🌍</div>
+    <div>
+      <div class="chat-nm" id="hName" style="color:var(--gold)">Narrator</div>
+      <div class="chat-mt" id="hMeta">your life story</div>
+    </div>
+    <div class="chat-hdr-r">
+      <div class="loc-badge" id="locBadge">🏠 Home</div>
+      <div class="online-dot"></div>
+    </div>
+  </div>
+  <div class="msgs" id="msgs">
+    <div class="sys">— your story begins —</div>
+  </div>
+  <div class="input-area">
+    <div class="input-who" id="inputWho">YOU</div>
+    <div class="quick-wrap" id="quickWrap"></div>
+    <div class="input-row">
+      <textarea id="input" placeholder="Say something, do something, or just live…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="send()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT -->
+
+<div class="right">
+  <div class="rhdr">Here now</div>
+  <div class="rbody" id="rbody"></div>
+</div>
+
+</div><!-- end app-body -->
+</div><!-- end app -->
+
+<!-- OVERLAY -->
+
+<div class="overlay" id="overlay" onclick="closeModals()"></div>
+
+<!-- INVENTORY -->
+
+<div class="modal" id="invModal">
+  <div class="mc">
+    <div class="mt">🎒 Inventory</div>
+    <div class="msub">what you're carrying</div>
+    <div class="inv-grid" id="invGrid"></div>
+    <div class="inv-add">
+      <input class="ii" id="invInp" placeholder="add item…" onkeydown="if(event.key==='Enter')addItem()">
+      <button class="iisub" onclick="addItem()">Add</button>
+    </div>
+    <button class="mc-close" onclick="closeModals()">close</button>
+  </div>
+</div>
+
+<!-- PROFILE -->
+
+<div class="modal" id="profModal">
+  <div class="mc">
+    <div class="mt" id="profName">—</div>
+    <div class="msub" id="profSub">—</div>
+    <div class="psect">Identity</div>
+    <div id="profRows"></div>
+    <div class="psect">Family</div>
+    <div id="famRows"></div>
+    <div class="psect">Background</div>
+    <div class="pbio" id="profBio">—</div>
+    <button class="mc-close" onclick="closeModals()">close</button>
+  </div>
+</div>
+
+<!-- SAVE -->
+
+<div class="modal" id="saveModal">
+  <div class="mc">
+    <div class="mt">💾 Sessions</div>
+    <div class="msub">save your life</div>
+    <div class="save-list" id="saveList"></div>
+    <div class="sav-acts">
+      <button class="svbtn p" onclick="saveGame()">Save Now</button>
+      <button class="svbtn" onclick="closeModals()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// COUNTRIES + ZONES
+// ═══════════════════════════════════════
+const COUNTRIES = [
+  { id:'ph', flag:'🇵🇭', name:'Philippines', currency:'₱', lang:'Filipino/English',
+    zones:[
+      { id:'ph_manila', label:'Metro Manila', flag:'🇵🇭', locs:[
+        { id:'home', name:'Home', em:'🏠', fare:0 },
+        { id:'school', name:'School', em:'🏫', fare:15 },
+        { id:'park', name:'Park', em:'🌳', fare:0 },
+        { id:'mall', name:'SM Mall', em:'🏬', fare:25 },
+        { id:'church', name:'Church', em:'⛪', fare:15 },
+        { id:'street', name:'Espana Blvd', em:'🛣️', fare:10 },
+        { id:'market', name:'Palengke', em:'🥬', fare:15 },
+        { id:'arcade', name:'Arcade', em:'🕹️', fare:30 },
+      ]},
+      { id:'ph_luzon', label:'Luzon', flag:'🇵🇭', locs:[
+        { id:'baguio', name:'Baguio', em:'🌲', fare:350 },
+        { id:'batangas', name:'Batangas', em:'🌊', fare:180 },
+        { id:'tagaytay', name:'Tagaytay', em:'🌋', fare:120 },
+      ]},
+      { id:'ph_visayas', label:'Visayas', flag:'🇵🇭', locs:[
+        { id:'cebu', name:'Cebu', em:'🏝️', fare:1200 },
+        { id:'boracay', name:'Boracay', em:'🏖️', fare:2500 },
+      ]},
+    ]
+  },
+  { id:'us', flag:'🇺🇸', name:'United States', currency:'$', lang:'English',
+    zones:[
+      { id:'us_home', label:'Hometown', flag:'🇺🇸', locs:[
+        { id:'home', name:'Home', em:'🏠', fare:0 },
+        { id:'school', name:'School', em:'🏫', fare:5 },
+        { id:'park', name:'Park', em:'🌳', fare:0 },
+        { id:'mall', name:'Mall', em:'🏬', fare:10 },
+        { id:'church', name:'Church', em:'⛪', fare:5 },
+        { id:'arcade', name:'Arcade', em:'🕹️', fare:15 },
+        { id:'diner', name:'Diner', em:'🍔', fare:10 },
+        { id:'library', name:'Library', em:'📚', fare:0 },
+      ]},
+      { id:'us_cities', label:'Major Cities', flag:'🇺🇸', locs:[
+        { id:'new_york', name:'New York', em:'🗽', fare:200 },
+        { id:'la', name:'Los Angeles', em:'🌴', fare:300 },
+        { id:'chicago', name:'Chicago', em:'🌆', fare:150 },
+        { id:'miami', name:'Miami', em:'🌊', fare:250 },
+      ]},
+    ]
+  },
+  { id:'uk', flag:'🇬🇧', name:'United Kingdom', currency:'£', lang:'English',
+    zones:[
+      { id:'uk_home', label:'Hometown', flag:'🇬🇧', locs:[
+        { id:'home', name:'Home', em:'🏠', fare:0 },
+        { id:'school', name:'School', em:'🏫', fare:0 },
+        { id:'park', name:'Park', em:'🌳', fare:0 },
+        { id:'chippy', name:'Chip Shop', em:'🐟', fare:3 },
+        { id:'pub', name:'Local Pub', em:'🍺', fare:5 },
+        { id:'library', name:'Library', em:'📚', fare:0 },
+      ]},
+      { id:'uk_cities', label:'Cities', flag:'🇬🇧', locs:[
+        { id:'london', name:'London', em:'🎡', fare:30 },
+        { id:'manchester', name:'Manchester', em:'🌧️', fare:20 },
+        { id:'edinburgh', name:'Edinburgh', em:'🏰', fare:50 },
+      ]},
+    ]
+  },
+  { id:'jp', flag:'🇯🇵', name:'Japan', currency:'¥', lang:'Japanese',
+    zones:[
+      { id:'jp_home', label:'Hometown', flag:'🇯🇵', locs:[
+        { id:'home', name:'Home', em:'🏠', fare:0 },
+        { id:'school', name:'School', em:'🏫', fare:200 },
+        { id:'park', name:'Park', em:'🌸', fare:0 },
+        { id:'conbini', name:'Convenience Store', em:'🏪', fare:150 },
+        { id:'shrine', name:'Shrine', em:'⛩️', fare:0 },
+        { id:'arcade', name:'Game Center', em:'🕹️', fare:500 },
+      ]},
+      { id:'jp_cities', label:'Cities', flag:'🇯🇵', locs:[
+        { id:'tokyo', name:'Tokyo', em:'🗼', fare:8000 },
+        { id:'osaka', name:'Osaka', em:'🏯', fare:8000 },
+        { id:'kyoto', name:'Kyoto', em:'🌿', fare:7500 },
+      ]},
+    ]
+  },
+  { id:'kr', flag:'🇰🇷', name:'South Korea', currency:'₩', lang:'Korean',
+    zones:[
+      { id:'kr_home', label:'Hometown', flag:'🇰🇷', locs:[
+        { id:'home', name:'Home', em:'🏠', fare:0 },
+        { id:'school', name:'Hagwon', em:'🏫', fare:1000 },
+        { id:'park', name:'Park', em:'🌳', fare:0 },
+        { id:'pc_bang', name:'PC Bang', em:'🖥️', fare:1500 },
+        { id:'noraebang', name:'Noraebang', em:'🎤', fare:5000 },
+      ]},
+      { id:'kr_cities', label:'Cities', flag:'🇰🇷', locs:[
+        { id:'seoul', name:'Seoul', em:'🏙️', fare:20000 },
+        { id:'busan', name:'Busan', em:'🌊', fare:30000 },
+      ]},
+    ]
+  },
+  { id:'br', flag:'🇧🇷', name:'Brazil', currency:'R$', lang:'Portuguese',
+    zones:[
+      { id:'br_home', label:'Hometown', flag:'🇧🇷', locs:[
+        { id:'home', name:'Home', em:'🏠', fare:0 },
+        { id:'school', name:'Escola', em:'🏫', fare:4 },
+        { id:'park', name:'Praça', em:'🌳', fare:0 },
+        { id:'beach', name:'Beach', em:'🏖️', fare:5 },
+        { id:'bar', name:'Bar', em:'🍺', fare:8 },
+      ]},
+      { id:'br_cities', label:'Cities', flag:'🇧🇷', locs:[
+        { id:'sao_paulo', name:'São Paulo', em:'🏙️', fare:80 },
+        { id:'rio', name:'Rio de Janeiro', em:'🌅', fare:120 },
+      ]},
+    ]
+  },
+  { id:'ng', flag:'🇳🇬', name:'Nigeria', currency:'₦', lang:'English/Yoruba',
+    zones:[
+      { id:'ng_home', label:'Hometown', flag:'🇳🇬', locs:[
+        { id:'home', name:'Home', em:'🏠', fare:0 },
+        { id:'school', name:'School', em:'🏫', fare:200 },
+        { id:'market', name:'Market', em:'🥬', fare:100 },
+        { id:'church', name:'Church', em:'⛪', fare:0 },
+        { id:'park', name:'Park', em:'🌳', fare:0 },
+      ]},
+      { id:'ng_cities', label:'Cities', flag:'🇳🇬', locs:[
+        { id:'lagos', name:'Lagos', em:'🏙️', fare:5000 },
+        { id:'abuja', name:'Abuja', em:'🏛️', fare:8000 },
+      ]},
+    ]
+  },
+  { id:'in', flag:'🇮🇳', name:'India', currency:'₹', lang:'Hindi/English',
+    zones:[
+      { id:'in_home', label:'Hometown', flag:'🇮🇳', locs:[
+        { id:'home', name:'Home', em:'🏠', fare:0 },
+        { id:'school', name:'School', em:'🏫', fare:10 },
+        { id:'temple', name:'Temple', em:'🛕', fare:0 },
+        { id:'market', name:'Bazaar', em:'🧵', fare:10 },
+        { id:'chai', name:'Chai Shop', em:'☕', fare:5 },
+      ]},
+      { id:'in_cities', label:'Cities', flag:'🇮🇳', locs:[
+        { id:'mumbai', name:'Mumbai', em:'🌊', fare:500 },
+        { id:'delhi', name:'Delhi', em:'🏛️', fare:400 },
+        { id:'bangalore', name:'Bangalore', em:'💻', fare:600 },
+      ]},
+    ]
+  },
+  { id:'mx', flag:'🇲🇽', name:'Mexico', currency:'MX$', lang:'Spanish',
+    zones:[
+      { id:'mx_home', label:'Hometown', flag:'🇲🇽', locs:[
+        { id:'home', name:'Casa', em:'🏠', fare:0 },
+        { id:'school', name:'Escuela', em:'🏫', fare:10 },
+        { id:'plaza', name:'Plaza', em:'🌳', fare:0 },
+        { id:'mercado', name:'Mercado', em:'🌮', fare:10 },
+        { id:'church', name:'Iglesia', em:'⛪', fare:0 },
+      ]},
+      { id:'mx_cities', label:'Cities', flag:'🇲🇽', locs:[
+        { id:'cdmx', name:'Mexico City', em:'🏙️', fare:200 },
+        { id:'cancun', name:'Cancún', em:'🏖️', fare:800 },
+      ]},
+    ]
+  },
+];
+
+// Flatten all locs
+const ALL_LOCS = {};
+COUNTRIES.forEach(c => c.zones.forEach(z => z.locs.forEach(l => {
+  ALL_LOCS[l.id+'-'+c.id] = { ...l, zoneId:z.id, zoneLabel:z.label, countryId:c.id };
+})));
+
+// ═══════════════════════════════════════
+// TRAITS
+// ═══════════════════════════════════════
+const TRAITS = ['Curious','Artistic','Athletic','Bookworm','Social butterfly','Introvert','Rebellious','Kind-hearted','Ambitious','Dreamer','Funny','Serious','Creative','Analytical','Empathetic'];
+
+// ═══════════════════════════════════════
+// FAMILY BACKGROUNDS
+// ═══════════════════════════════════════
+const FAMILY_TEMPLATES = [
+  { type:'struggling', label:'Struggling Family', money:0, desc:'Ends barely meet. Love is there. Money isn\'t.' },
+  { type:'lower_middle', label:'Lower Middle Class', money:50, desc:'Comfortable but careful. Parents work hard.' },
+  { type:'middle', label:'Middle Class', money:200, desc:'Stable. Not rich, not poor. Opportunities exist.' },
+  { type:'upper_middle', label:'Upper Middle Class', money:800, desc:'Comfortable life. Private schools. Vacations happen.' },
+  { type:'wealthy', label:'Wealthy Family', money:5000, desc:'Money is not a concern. Expectations are high.' },
+];
+
+const PARENT_JOBS = ['teacher','nurse','driver','engineer','merchant','OFW','farmer','police officer','doctor','chef','seamstress','laborer','entrepreneur','call center agent','government worker'];
+const PARENT_NAMES_M = ['Roberto','Eduardo','Manuel','Carlos','Jose','Miguel','Antonio','Ricardo','Fernando','David'];
+const PARENT_NAMES_F = ['Maria','Ana','Carmen','Rosa','Elena','Sofia','Isabella','Luz','Grace','Linda'];
+
+function randomFamily(country) {
+  const bg = FAMILY_TEMPLATES[Math.floor(Math.random()*FAMILY_TEMPLATES.length)];
+  const dadName = PARENT_NAMES_M[Math.floor(Math.random()*PARENT_NAMES_M.length)];
+  const momName = PARENT_NAMES_F[Math.floor(Math.random()*PARENT_NAMES_F.length)];
+  const dadJob = PARENT_JOBS[Math.floor(Math.random()*PARENT_JOBS.length)];
+  const momJob = PARENT_JOBS[Math.floor(Math.random()*PARENT_JOBS.length)];
+  const siblings = Math.floor(Math.random()*4);
+  return { ...bg, dadName, momName, dadJob, momJob, siblings };
+}
+
+// ═══════════════════════════════════════
+// CREATOR UI
+// ═══════════════════════════════════════
+let selectedCountry = null;
+let selectedTraits = [];
+
+function buildCreator() {
+  // Countries
+  const cg = document.getElementById('countryGrid');
+  cg.innerHTML = COUNTRIES.map(c=>`
+    <button class="country-btn" id="cb-${c.id}" onclick="selectCountry('${c.id}')">
+      <span class="cb-flag">${c.flag}</span>
+      <span class="cb-name">${c.name}</span>
+    </button>`).join('');
+
+  // Traits
+  const tg = document.getElementById('traitGrid');
+  tg.innerHTML = TRAITS.map(t=>`
+    <button class="trait-btn" id="tb-${t}" onclick="toggleTrait('${t}')">${t}</button>`).join('');
+}
+
+function selectCountry(id) {
+  selectedCountry = id;
+  document.querySelectorAll('.country-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('cb-'+id)?.classList.add('selected');
+  checkReady();
+}
+
+function toggleTrait(t) {
+  if (selectedTraits.includes(t)) {
+    selectedTraits = selectedTraits.filter(x=>x!==t);
+    document.getElementById('tb-'+t)?.classList.remove('selected');
+  } else if (selectedTraits.length < 3) {
+    selectedTraits.push(t);
+    document.getElementById('tb-'+t)?.classList.add('selected');
+  }
+}
+
+function checkReady() {
+  const name = document.getElementById('cName')?.value.trim();
+  document.getElementById('startBtn').disabled = !(name && selectedCountry);
+}
+
+// ═══════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════
+let G = {
+  name:'', gender:'male', country:null, traits:[], birthYear:2005,
+  age:0, year:2005, locKey:'home',
+  stats:{ mood:70, health:80, smart:50, social:50, money:0 },
+  family:null,
+  npc:'narrator',
+  inventory:[],
+  histories:{},
+  lifeLog:[],
+  saves: JSON.parse(localStorage.getItem('lifesim_saves')||'[]'),
+  currentNPCs:{},
+  leftTab:'world',
+};
+
+// ═══════════════════════════════════════
+// NPC GENERATION BY AGE
+// ═══════════════════════════════════════
+const NPC_COLORS = ['#5b8fd4','#c45f84','#5ab87a','#8a5fd4','#c4804a','#4ab8b8','#c4c450','#c45050'];
+const BABY_NAMES = ['Liam','Noah','Emma','Olivia','Aiden','Sophia','Lucas','Mia','Ethan','Ava'];
+const LAST_NAMES = ['Santos','Reyes','Cruz','Garcia','Lee','Kim','Tan','Ali','Obi','Silva'];
+
+function genNPCsForAge(age, country, family) {
+  const npcs = {};
+
+  // Always have: Mom, Dad
+  npcs['mom'] = {
+    name: family.momName, rel:'mom', em:'👩', color:'#c45f84',
+    bg:'linear-gradient(135deg,#2a1a2a,#1a0a1a)', locKey:'home',
+    system: buildNPCSystem('mom', family.momName, 'your mother', age, country, family, G.traits)
+  };
+  npcs['dad'] = {
+    name: family.dadName, rel:'dad', em:'👨', color:'#5b8fd4',
+    bg:'linear-gradient(135deg,#1a2a3a,#0a1a2a)', locKey:'home',
+    system: buildNPCSystem('dad', family.dadName, 'your father', age, country, family, G.traits)
+  };
+
+  // Narrator (always)
+  npcs['narrator'] = {
+    name:'Narrator', rel:'life narrator', em:'🌍', color:G.country?.currency==='₱'?'#d4a853':'#d4a853',
+    bg:'linear-gradient(135deg,#1a1a2a,#0a0a1a)', locKey:'home',
+    system: buildNarratorSystem(age, country, family, G.traits)
+  };
+
+  // Friends at school age
+  if (age >= 5) {
+    const friendName = BABY_NAMES[Math.floor(Math.random()*BABY_NAMES.length)];
+    npcs['bestfriend'] = {
+      name: friendName, rel:'best friend', em:'😄', color:'#5ab87a',
+      bg:'linear-gradient(135deg,#1a2a1a,#0a1a0a)', locKey:'school',
+      system: buildNPCSystem('friend', friendName, 'best friend (classmate, same age as you)', age, country, family, G.traits)
+    };
+  }
+
+  // Sibling
+  if (family.siblings > 0 && age >= 2) {
+    npcs['sibling'] = {
+      name: BABY_NAMES[Math.floor(Math.random()*BABY_NAMES.length)], rel:'sibling', em:'🧒', color:'#c4804a',
+      bg:'linear-gradient(135deg,#2a1a0a,#1a0a00)', locKey:'home',
+      system: buildNPCSystem('sibling', 'your sibling', 'sibling (close in age)', age, country, family, G.traits)
+    };
+  }
+
+  // Teen additions
+  if (age >= 13) {
+    const crushName = BABY_NAMES[Math.floor(Math.random()*BABY_NAMES.length)];
+    npcs['crush'] = {
+      name: crushName, rel:'crush / classmate', em:'🌸', color:'#c45f84',
+      bg:'linear-gradient(135deg,#2a1a2a,#1a0a1a)', locKey:'school',
+      system: buildNPCSystem('crush', crushName, 'crush / classmate you like (same age)', age, country, family, G.traits)
+    };
+    npcs['rival'] = {
+      name: BABY_NAMES[Math.floor(Math.random()*BABY_NAMES.length)], rel:'rival / frenemy', em:'😤', color:'#4ab8b8',
+      bg:'linear-gradient(135deg,#0a2a2a,#001a1a)', locKey:'school',
+      system: buildNPCSystem('rival', 'your rival', 'academic or social rival at school', age, country, family, G.traits)
+    };
+  }
+
+  // Adult additions
+  if (age >= 18) {
+    npcs['coworker'] = {
+      name: BABY_NAMES[Math.floor(Math.random()*BABY_NAMES.length)], rel:'coworker / acquaintance', em:'💼', color:'#8a5fd4',
+      bg:'linear-gradient(135deg,#1a0a2a,#0a001a)', locKey:'work',
+      system: buildNPCSystem('coworker', 'coworker', 'coworker or college classmate (same age as you)', age, country, family, G.traits)
+    };
+  }
+
+  return npcs;
+}
+
+function buildNarratorSystem(age, country, family, traits) {
+  return `You are the Narrator of a life simulation RPG. The player is living a full life starting from birth in ${country?.name||'an unknown country'}.
+
+CHARACTER INFO:
+- Name: ${G.name}
+- Age: ${age} years old
+- Year: ${G.birthYear + age}
+- Country: ${country?.name}
+- Language spoken: ${country?.lang}
+- Family: ${family?.label} — Dad (${family?.dadName}, ${family?.dadJob}), Mom (${family?.momName}, ${family?.momJob}), ${family?.siblings} sibling(s)
+- Traits: ${traits.join(', ')||'none selected'}
+
+YOUR ROLE:
+You narrate and react to what the player does, says, or decides. You describe life events, consequences, and the world around them in a grounded, realistic way. Mix slice-of-life with occasional drama.
+
+RULES:
+- Always be in character as the Narrator.
+- When the player does something, narrate what happens next in their life — consequences, reactions from the world.
+- Use second person ("you see...", "you feel...").
+- Keep language appropriate to the player's age (baby talk for toddlers, simpler for kids, full depth for teens/adults).
+- Be specific — mention real details about their country, family, environment.
+- 2-4 sentences usually. More for major life events.
+- No meta-commentary. Just narrate.`;
+}
+
+function buildNPCSystem(role, npcName, relDesc, age, country, family, traits) {
+  return `You are ${npcName}, ${relDesc} of ${G.name}.
+
+CONTEXT:
+- ${G.name} is ${age} years old (born ${G.birthYear}, year is now ${G.birthYear+age})
+- Country: ${country?.name} (language: ${country?.lang})
+- ${G.name}'s family is ${family?.label}
+- ${G.name}'s traits: ${traits.join(', ')||'none'}
+
+YOUR ROLE: Be ${npcName} (${relDesc}). React naturally and realistically to ${G.name} based on your relationship.
+
+RULES:
+- Stay in character always.
+- Use language appropriate to the country (${country?.lang}) — natural mix for the setting.
+- React to *actions* realistically.
+- 1-3 sentences usually.
+- Be affected by ${G.name}'s age — talk down to a child, more equal with a teen, adult-to-adult for grown-ups.
+- No quotation marks around dialogue. Just respond as ${npcName}.`;
+}
+
+// ═══════════════════════════════════════
+// START GAME
+// ═══════════════════════════════════════
+function startGame() {
+  G.name = document.getElementById('cName').value.trim();
+  G.gender = document.getElementById('cGender').value;
+  G.country = COUNTRIES.find(c=>c.id===selectedCountry);
+  G.traits = [...selectedTraits];
+  G.birthYear = parseInt(document.getElementById('cYear').value);
+  G.year = G.birthYear;
+  G.age = 0;
+  G.family = randomFamily(G.country);
+  G.stats.money = G.family.money;
+  G.locKey = 'home';
+  G.currentNPCs = genNPCsForAge(0, G.country, G.family);
+  G.npc = 'narrator';
+  G.histories = Object.fromEntries(Object.keys(G.currentNPCs).map(k=>[k,[]]));
+  G.inventory = [{ em:'🧸', name:'Plush Toy', desc:'Given at birth.', qty:1 }];
+  G.lifeLog = [];
+
+  document.getElementById('creator').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+
+  updateUI();
+  updateChatHeader();
+  renderLeft();
+  renderRight();
+  renderQuick();
+
+  // Birth narration
+  setTimeout(()=>{
+    showTyping();
+    setTimeout(()=>{
+      hideTyping();
+      const birthMsg = `${G.name} is born on a ${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][Math.floor(Math.random()*7)]} in ${G.country.name}. The hospital room smells like antiseptic and flowers. ${G.family.momName} holds you for the first time, exhausted but smiling. ${G.family.dadName} stands nearby, eyes red from crying. Your family is ${G.family.label.toLowerCase()}. This is where your story begins.`;
+      G.histories['narrator'] = [{ role:'assistant', content:birthMsg }];
+      appendNarr(birthMsg);
+    }, 1600);
+  }, 500);
+}
+
+// ═══════════════════════════════════════
+// AGE UP
+// ═══════════════════════════════════════
+async function ageUp() {
+  G.age++;
+  G.year = G.birthYear + G.age;
+
+  // Regenerate NPCs for new age
+  const newNPCs = genNPCsForAge(G.age, G.country, G.family);
+  Object.keys(newNPCs).forEach(k => {
+    if (!G.histories[k]) G.histories[k] = [];
+    // Update system prompt for new age
+    G.currentNPCs[k] = newNPCs[k];
+  });
+  G.currentNPCs = newNPCs;
+
+  // Stat changes with age
+  G.stats.smart = Math.min(100, G.stats.smart + Math.floor(Math.random()*5));
+  G.stats.social = Math.min(100, G.stats.social + Math.floor(Math.random()*3));
+  if (G.age > 10) G.stats.money = Math.max(0, G.stats.money + G.family.money * 0.1);
+
+  updateUI();
+  renderLeft();
+  renderRight();
+  renderQuick();
+
+  // Narrate the year
+  showTyping();
+  try {
+    const res = await fetch('/api/chat',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:300,
+        system: buildNarratorSystem(G.age, G.country, G.family, G.traits),
+        messages:[{ role:'user', content:`Narrate turning ${G.age} years old in ${G.year}. 2-3 sentences about what this year of life is like for ${G.name} in ${G.country.name}. Make it specific and evocative. Include one small life detail or event.` }]
+      })
+    });
+    const data = await res.json();
+    const narr = data.content?.[0]?.text||`You turn ${G.age}. Another year of life in ${G.country.name}.`;
+    hideTyping();
+    appendWorldEv(`<strong>Year ${G.year}</strong> · Age ${G.age}`);
+    appendNarr(narr);
+    G.lifeLog.push({ age:G.age, year:G.year, text:narr });
+    G.histories['narrator'].push({ role:'assistant', content:narr });
+  } catch(e) {
+    hideTyping();
+    appendWorldEv(`<strong>Year ${G.year}</strong> · Age ${G.age}`);
+  }
+}
+
+// ═══════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════
+function updateUI() {
+  const av = G.age === 0 ? '👶' : G.age < 3 ? '👶' : G.age < 10 ? '🧒' : G.age < 18 ? '🧑' : '🧑';
+  document.getElementById('charAv').textContent = av;
+  document.getElementById('charAv').style.background = `var(--s3)`;
+  document.getElementById('charName').textContent = G.name;
+  const stage = G.age < 1 ? 'Newborn' : G.age < 3 ? 'Toddler' : G.age < 6 ? 'Child' : G.age < 13 ? 'Kid' : G.age < 18 ? 'Teen' : G.age < 25 ? 'Young Adult' : 'Adult';
+  document.getElementById('charSub').textContent = `Age ${G.age} · ${stage}`;
+  document.getElementById('ageBadge').textContent = G.age;
+  document.getElementById('brandName').textContent = `/ ${G.name}`;
+  document.getElementById('inputWho').textContent = G.name.toUpperCase();
+
+  // Stats
+  const s = G.stats;
+  document.getElementById('sMood').style.width=s.mood+'%';
+  document.getElementById('sHealth').style.width=s.health+'%';
+  document.getElementById('sSmart').style.width=s.smart+'%';
+  document.getElementById('sSocial').style.width=s.social+'%';
+  document.getElementById('sMoney').style.width=Math.min(100,(s.money/(G.family?.money||500+1))*100)+'%';
+  document.getElementById('sMoodV').textContent=s.mood;
+  document.getElementById('sHealthV').textContent=s.health;
+  document.getElementById('sSmartV').textContent=s.smart;
+  document.getElementById('sSocialV').textContent=s.social;
+  document.getElementById('sMoneyV').textContent=G.country?.currency+s.money;
+
+  document.getElementById('tMood').textContent=s.mood;
+  document.getElementById('tEnergy').textContent=s.health;
+  document.getElementById('tMoney').textContent=G.country?.currency+s.money;
+
+  const loc = G.country?.zones?.flatMap(z=>z.locs).find(l=>l.id===G.locKey);
+  document.getElementById('tLoc').textContent=`${loc?.em||'📍'} ${loc?.name||G.locKey}`;
+  document.getElementById('locBadge').textContent=`${loc?.em||'📍'} ${loc?.name||G.locKey}`;
+}
+
+function renderLeft() {
+  if (G.leftTab==='world') renderWorldTab();
+  else renderPeopleTab();
+}
+
+function renderWorldTab() {
+  if (!G.country) { document.getElementById('lbody').innerHTML=''; return; }
+  let html='';
+  G.country.zones.forEach(z=>{
+    html+=`<div class="zone-g">
+      <div class="zone-hdr" onclick="toggleZone(this,'z-${z.id}')">
+        <span class="zflag">${z.flag}</span>
+        <span class="zlabel">${z.label}</span>
+        <span class="zarrow">▾</span>
+      </div>
+      <div class="zone-locs" id="z-${z.id}">`;
+    z.locs.forEach(l=>{
+      const key = l.id+'-'+G.country.id;
+      const isActive = l.id===G.locKey;
+      const canAfford = G.stats.money >= l.fare;
+      const tooYoung = (l.id==='arcade'||l.id==='pub'||l.id==='bar'||l.id==='noraebang') && G.age < 10;
+      const locked = (l.fare>0&&!canAfford)||tooYoung;
+      html+=`<button class="loc-btn ${isActive?'active':''} ${locked?'locked':''}"
+        onclick="${locked?'':'goLoc(\''+l.id+'\')'}">
+        <span class="lem">${l.em}</span>
+        <div class="linfo">
+          <div class="lname">${l.name}</div>
+          <div class="lfare">${l.fare===0?'free':G.country.currency+l.fare}</div>
+        </div>
+      </button>`;
+    });
+    html+=`</div></div>`;
+  });
+  document.getElementById('lbody').innerHTML=html;
+}
+
+function renderPeopleTab() {
+  const html=Object.entries(G.currentNPCs).map(([id,npc])=>`
+    <button class="npc-row ${id===G.npc?'active':''}" id="nr-${id}" onclick="selectNPC('${id}')">
+      <div class="nav-s" style="background:${npc.bg};border:1.5px solid ${npc.color}">${npc.em}</div>
+      <div class="ninf"><div class="nnm">${npc.name}</div><div class="nrl">${npc.rel}</div></div>
+      <div class="here-dot" style="background:${npc.locKey===G.locKey?'#4caf7d':'var(--muted2)'}"></div>
+    </button>`).join('');
+  document.getElementById('lbody').innerHTML=html||'<div style="font-family:\'Syne Mono\',monospace;font-size:10px;color:var(--muted);padding:10px;text-align:center;">nobody yet</div>';
+}
+
+function renderRight() {
+  const here=Object.entries(G.currentNPCs).filter(([id,n])=>n.locKey===G.locKey);
+  document.getElementById('rbody').innerHTML=here.length===0
+    ?'<div class="nobody">nobody here</div>'
+    :here.map(([id,npc])=>`
+      <div class="npc-here ${id===G.npc?'talking':''}" onclick="selectNPC('${id}')">
+        <div class="nh-top">
+          <div class="nh-av" style="background:${npc.bg};border:1.5px solid ${npc.color}">${npc.em}</div>
+          <div class="nh-name" style="color:${npc.color}">${npc.name}</div>
+        </div>
+        <div class="nh-rel">${npc.rel}</div>
+      </div>`).join('');
+}
+
+function renderQuick() {
+  const age=G.age;
+  let quick=[];
+  if(age<3) quick=["*cries*","*laughs*","*reaches for something*","*falls asleep*"];
+  else if(age<6) quick=["*plays*","Can we go outside?","I'm hungry.","*draws something*"];
+  else if(age<13) quick=["Can I go to a friend's house?","*does homework*","I'm bored.","What's for dinner?","*plays outside*"];
+  else if(age<18) quick=["What's the plan?","*checks phone*","I need money.","*listens to music*","I'm tired."];
+  else quick=["What's up?","*goes out*","I need a job.","*overthinks*","Tell me something."];
+  document.getElementById('quickWrap').innerHTML=quick.map(q=>`<button class="qb" onclick="quickSend('${q.replace(/'/g,"\\'")}')">${q}</button>`).join('');
+}
+
+function updateChatHeader() {
+  const npc=G.currentNPCs[G.npc];
+  if(!npc) return;
+  document.getElementById('hAv').textContent=npc.em;
+  document.getElementById('hAv').style.background=npc.bg;
+  document.getElementById('hAv').style.border=`1.5px solid ${npc.color}`;
+  document.getElementById('hName').textContent=npc.name;
+  document.getElementById('hName').style.color=npc.color;
+  const loc=G.country?.zones?.flatMap(z=>z.locs).find(l=>l.id===G.locKey);
+  document.getElementById('hMeta').textContent=`${npc.rel} · ${loc?.name||G.locKey}`;
+}
+
+// ═══════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════
+function goLoc(locId) {
+  const loc=G.country?.zones?.flatMap(z=>z.locs).find(l=>l.id===locId);
+  if(!loc) return;
+  if(loc.fare>0) {
+    if(G.stats.money<loc.fare){ appendSys(`You don't have enough ${G.country.currency} for that.`); return; }
+    G.stats.money=Math.max(0,G.stats.money-loc.fare);
+  }
+  G.locKey=locId;
+  updateUI();
+  renderLeft();
+  renderRight();
+  updateChatHeader();
+  appendWorldEv(`You go to <strong>${loc.em} ${loc.name}</strong>`);
+  G.stats.health=Math.max(0,G.stats.health-2);
+}
+
+function selectNPC(id) {
+  G.npc=id;
+  updateChatHeader();
+  renderRight();
+  if(G.leftTab==='people') renderPeopleTab();
+  reRender();
+}
+
+// ═══════════════════════════════════════
+// MESSAGING
+// ═══════════════════════════════════════
+let isTyping=false, typingEl=null;
+
+async function send() {
+  const inp=document.getElementById('input');
+  const text=inp.value.trim();
+  if(!text||isTyping) return;
+  inp.value=''; autoResize(inp);
+
+  appendMsg('me',text);
+  if(!G.histories[G.npc]) G.histories[G.npc]=[];
+  G.histories[G.npc].push({role:'user',content:text});
+  G.stats.mood=Math.min(100,G.stats.mood+1);
+  G.stats.health=Math.max(0,G.stats.health-1);
+  updateUI();
+
+  showTyping();
+  try {
+    const npc=G.currentNPCs[G.npc];
+    const loc=G.country?.zones?.flatMap(z=>z.locs).find(l=>l.id===G.locKey);
+    const locCtx=`\nCURRENT LOCATION: ${loc?.name||G.locKey}. CURRENT YEAR: ${G.year}. AGE: ${G.age}.`;
+    const res=await fetch('/api/chat',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:400,
+        system:npc.system+locCtx,
+        messages:G.histories[G.npc]
+      })
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||'...';
+    hideTyping();
+    G.histories[G.npc].push({role:'assistant',content:reply});
+    appendMsg('npc',reply);
+    G.stats.social=Math.min(100,G.stats.social+2);
+    updateUI();
+  } catch(e){ hideTyping(); appendMsg('npc','*no response*'); }
+}
+
+function quickSend(t){ document.getElementById('input').value=t; send(); }
+
+function reRender() {
+  const chat=document.getElementById('msgs');
+  chat.innerHTML='<div class="sys">— switched —</div>';
+  (G.histories[G.npc]||[]).forEach(m=>{
+    if(m.role==='user') appendMsg('me',m.content);
+    else appendMsg('npc',m.content);
+  });
+  if(!(G.histories[G.npc]||[]).length) {
+    setTimeout(()=>{ showTyping(); setTimeout(()=>{ hideTyping(); doNPCIntro(); },1000); },300);
+  }
+}
+
+async function doNPCIntro() {
+  try {
+    const npc=G.currentNPCs[G.npc];
+    const res=await fetch('/api/chat',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:200,
+        system:npc.system,
+        messages:[{role:'user',content:`Start the interaction. ${G.name} is ${G.age} years old. Give a short opening line or action appropriate to your relationship and their age. Be in character immediately.`}]
+      })
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||'...';
+    if(!G.histories[G.npc]) G.histories[G.npc]=[];
+    G.histories[G.npc].push({role:'assistant',content:reply});
+    appendMsg('npc',reply);
+  } catch(e){ appendMsg('npc','...'); }
+}
+
+function appendMsg(type, text) {
+  const chat=document.getElementById('msgs');
+  const npc=G.currentNPCs[G.npc]||{em:'🌍',color:'var(--gold)',bg:'var(--s3)',name:'Narrator'};
+  const isAct=text.startsWith('*')&&text.endsWith('*');
+  const d=document.createElement('div');
+  d.className=`msg ${type}`;
+  if(type==='me'){
+    const av=G.age<3?'👶':G.age<10?'🧒':G.age<18?'🧑':'🧑';
+    d.innerHTML=`<div class="mav" style="background:var(--s3);border:1.5px solid var(--gold)">${av}</div>
+    <div class="mbody"><div class="mwho" style="color:var(--gold)">${G.name.toUpperCase()}</div>
+    ${isAct?`<div class="mact">${text}</div>`:`<div class="mbub">${text}</div>`}</div>`;
+  } else {
+    d.innerHTML=`<div class="mav" style="background:${npc.bg};border:1.5px solid ${npc.color}">${npc.em}</div>
+    <div class="mbody"><div class="mwho" style="color:${npc.color}">${npc.name.toUpperCase()}</div>
+    ${isAct?`<div class="mact">${text}</div>`:`<div class="mbub">${text}</div>`}</div>`;
+  }
+  chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
+}
+
+function appendNarr(text) {
+  const d=document.createElement('div'); d.className='narr'; d.textContent=text;
+  document.getElementById('msgs').appendChild(d);
+  document.getElementById('msgs').scrollTop=9999;
+}
+
+function appendSys(t) {
+  const d=document.createElement('div');d.className='sys';d.textContent=t;
+  document.getElementById('msgs').appendChild(d);
+  document.getElementById('msgs').scrollTop=9999;
+}
+
+function appendWorldEv(h) {
+  const d=document.createElement('div');d.className='world-ev';d.innerHTML=h;
+  document.getElementById('msgs').appendChild(d);
+  document.getElementById('msgs').scrollTop=9999;
+}
+
+function showTyping() {
+  isTyping=true;document.getElementById('sendBtn').disabled=true;
+  const chat=document.getElementById('msgs');
+  const npc=G.currentNPCs[G.npc]||{em:'🌍',bg:'var(--s3)',color:'var(--gold)'};
+  typingEl=document.createElement('div');typingEl.className='typing-wrap';
+  typingEl.innerHTML=`<div class="mav" style="width:26px;height:26px;border-radius:7px;background:${npc.bg};border:1.5px solid ${npc.color};display:flex;align-items:center;justify-content:center;font-size:11px">${npc.em}</div>
+  <div class="typing-dots"><span></span><span></span><span></span></div>`;
+  chat.appendChild(typingEl);chat.scrollTop=chat.scrollHeight;
+}
+
+function hideTyping() {
+  isTyping=false;document.getElementById('sendBtn').disabled=false;
+  if(typingEl){typingEl.remove();typingEl=null;}
+}
+
+// ═══════════════════════════════════════
+// INVENTORY
+// ═══════════════════════════════════════
+function renderInv(){
+  document.getElementById('invGrid').innerHTML=G.inventory.map(i=>`
+    <div class="inv-item"><div class="iiem">${i.em}</div><div class="iinm">${i.name}</div><div class="iidesc">${i.desc}</div></div>`).join('');
+}
+function addItem(){
+  const r=document.getElementById('invInp').value.trim(); if(!r)return;
+  const em=r.match(/\p{Emoji}/u)?.[0]||'📦';
+  const nm=r.replace(/\p{Emoji}/gu,'').trim()||r;
+  G.inventory.push({em,name:nm,desc:'',qty:1});
+  document.getElementById('invInp').value=''; renderInv();
+}
+
+// ═══════════════════════════════════════
+// PROFILE MODAL
+// ═══════════════════════════════════════
+function renderProfile(){
+  document.getElementById('profName').textContent=G.name;
+  document.getElementById('profSub').textContent=`Age ${G.age} · ${G.year} · ${G.country?.name}`;
+  document.getElementById('profRows').innerHTML=`
+    <div class="prow"><span class="pl">Age</span><span class="pr">${G.age}</span></div>
+    <div class="prow"><span class="pl">Year</span><span class="pr">${G.year}</span></div>
+    <div class="prow"><span class="pl">Country</span><span class="pr">${G.country?.flag} ${G.country?.name}</span></div>
+    <div class="prow"><span class="pl">Gender</span><span class="pr">${G.gender}</span></div>
+    <div class="prow"><span class="pl">Traits</span><span class="pr">${G.traits.join(', ')||'none'}</span></div>`;
+  document.getElementById('famRows').innerHTML=`
+    <div class="prow"><span class="pl">Background</span><span class="pr">${G.family?.label}</span></div>
+    <div class="prow"><span class="pl">Father</span><span class="pr">${G.family?.dadName} (${G.family?.dadJob})</span></div>
+    <div class="prow"><span class="pl">Mother</span><span class="pr">${G.family?.momName} (${G.family?.momJob})</span></div>
+    <div class="prow"><span class="pl">Siblings</span><span class="pr">${G.family?.siblings}</span></div>`;
+  document.getElementById('profBio').textContent=G.family?.desc||'';
+}
+
+// ═══════════════════════════════════════
+// SAVE / LOAD
+// ═══════════════════════════════════════
+function saveGame(){
+  const name=`${G.country?.flag} ${G.name} · Age ${G.age}`;
+  const date=new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  G.saves.push({name,date,snap:JSON.parse(JSON.stringify({
+    name:G.name,gender:G.gender,country:G.country,traits:G.traits,birthYear:G.birthYear,
+    age:G.age,year:G.year,locKey:G.locKey,stats:G.stats,family:G.family,
+    npc:G.npc,inventory:G.inventory,histories:G.histories,lifeLog:G.lifeLog,
+  }))});
+  localStorage.setItem('lifesim_saves',JSON.stringify(G.saves));
+  renderSaves();
+}
+
+function loadGame(i){
+  const {snap}=G.saves[i];
+  Object.assign(G,snap);
+  G.currentNPCs=genNPCsForAge(G.age,G.country,G.family);
+  updateUI(); renderLeft(); renderRight(); renderQuick(); updateChatHeader(); reRender();
+  closeModals();
+}
+
+function delSave(i){
+  G.saves.splice(i,1);
+  localStorage.setItem('lifesim_saves',JSON.stringify(G.saves));
+  renderSaves();
+}
+
+function renderSaves(){
+  G.saves=JSON.parse(localStorage.getItem('lifesim_saves')||'[]');
+  const el=document.getElementById('saveList');
+  if(!G.saves.length){el.innerHTML='<div class="no-saves">no saves yet</div>';return;}
+  el.innerHTML=G.saves.map((s,i)=>`
+    <div class="svi">
+      <div><div class="svnm">${s.name}</div><div class="svdt">${s.date}</div></div>
+      <div class="svbtns">
+        <button class="sbt ld" onclick="loadGame(${i})">load</button>
+        <button class="sbt dl" onclick="delSave(${i})">del</button>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// MODALS + HELPERS
+// ═══════════════════════════════════════
+function openModal(id){
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById(id).classList.add('open');
+  if(id==='invModal') renderInv();
+  if(id==='saveModal') renderSaves();
+  if(id==='profModal') renderProfile();
+}
+function closeModals(){
+  document.getElementById('overlay').classList.remove('open');
+  ['invModal','profModal','saveModal'].forEach(id=>document.getElementById(id).classList.remove('open'));
+}
+function switchLTab(tab,btn){
+  G.leftTab=tab;
+  document.querySelectorAll('.ltab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeft();
+}
+function toggleZone(hdr,bodyId){
+  hdr.classList.toggle('collapsed');
+  const b=document.getElementById(bodyId);
+  if(b) b.classList.toggle('hidden');
+}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+
+// ═══════════════════════════════════════
+// TIME ENGINE
+// 1 real minute = 1 in-game day
+// so 1 real second = 1 in-game day / 60
+// tick every second, advance 1 day
+// ═══════════════════════════════════════
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTH_DAYS = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+let TIME = {
+  day:1, month:1, year:2005,    // current in-game date
+  birthDay:1, birthMonth:1,     // character's birthday
+  paused:false,
+  speed:1,                       // multiplier: 1,2,5,10
+  ticker:null,
+};
+const SPEEDS = [1,2,5,10];
+
+function startTimeTicker() {
+  if (TIME.ticker) clearInterval(TIME.ticker);
+  // Base: 1 real second = 1 in-game day at speed 1
+  // At speed N: N days per real second
+  TIME.ticker = setInterval(tickDay, 1000 / TIME.speed);
+}
+
+function tickDay() {
+  if (TIME.paused) return;
+
+  TIME.day++;
+  const maxDay = MONTH_DAYS[TIME.month-1] + (TIME.month===2 && isLeap(TIME.year)?1:0);
+
+  if (TIME.day > maxDay) {
+    TIME.day = 1;
+    TIME.month++;
+    if (TIME.month > 12) {
+      TIME.month = 1;
+      TIME.year++;
+      // Auto age-up when a new year passes birth month/day
+    }
+  }
+
+  // Check birthday — auto age up
+  if (TIME.day === TIME.birthDay && TIME.month === TIME.birthMonth && TIME.year > G.birthYear + G.age) {
+    ageUp();
+  }
+
+  updateTimeDisplay();
+
+  // Random small stat decay per day
+  if (Math.random() < 0.03) {
+    G.stats.mood = Math.max(0, G.stats.mood - 1);
+    updateUI();
+  }
+}
+
+function isLeap(y){ return (y%4===0&&y%100!==0)||y%400===0; }
+
+function updateTimeDisplay() {
+  const d = new Date(TIME.year, TIME.month-1, TIME.day);
+  const dayName = DAYS[d.getDay()];
+  document.getElementById('tdDay').textContent  = dayName;
+  document.getElementById('tdDate').textContent = `${MONTHS[TIME.month-1]} ${TIME.day}`;
+  document.getElementById('tdYear').textContent = TIME.year;
+  document.getElementById('tdAge').textContent  = `Age ${G.age}`;
+}
+
+function togglePause() {
+  TIME.paused = !TIME.paused;
+  document.getElementById('pauseBtn').textContent = TIME.paused ? '▶' : '⏸';
+}
+
+function cycleSpeed() {
+  const idx = SPEEDS.indexOf(TIME.speed);
+  TIME.speed = SPEEDS[(idx+1) % SPEEDS.length];
+  document.getElementById('speedBtn').textContent = TIME.speed + '×';
+  startTimeTicker();
+}
+
+// Patch startGame to init time
+const _origStartGame = startGame;
+startGame = function() {
+  _origStartGame();
+  TIME.year       = G.birthYear;
+  TIME.month      = 1;
+  TIME.day        = 1;
+  TIME.birthDay   = 1;
+  TIME.birthMonth = 1;
+  updateTimeDisplay();
+  startTimeTicker();
+};
+
+// INIT
+buildCreator();
+</script>
+
+</body>
+</html>
