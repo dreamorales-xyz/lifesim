@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
 <title>LifeSim — Your Story</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Syne+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
@@ -14,9 +15,10 @@
   --purple:#8a5fd4;--orange:#c4804a;--teal:#4ab8b8;--red:#c45050;
   --text:#eae7df;--muted:#606068;--muted2:#404048;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;overflow:hidden;background:var(--bg);}
-body{font-family:'DM Sans',sans-serif;color:var(--text);display:flex;flex-direction:column;height:100dvh;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:rgba(212,168,83,0.2);}
+html,body{height:100%;overflow:hidden;background:#08080a !important;color-scheme:dark;}
+body{font-family:'DM Sans',sans-serif;color:var(--text);display:flex;flex-direction:column;height:100dvh;background:#08080a !important;}
+input,select,textarea{color-scheme:dark;background:var(--s2) !important;color:var(--text) !important;}
 
 /* ── CHARACTER CREATOR ── */
 #creator {
@@ -30,7 +32,7 @@ width:100%;max-width:480px;padding:28px;
 }
 .creator-title {
 font-family:‘Syne’,sans-serif;font-size:22px;font-weight:800;color:var(–gold);
-margin-bottom:4px;
+margin-bottom:4px;padding-top:4px;
 }
 .creator-sub {
 font-family:‘Syne Mono’,monospace;font-size:10px;color:var(–muted);margin-bottom:24px;
@@ -41,15 +43,15 @@ font-family:‘Syne’,sans-serif;font-size:10px;font-weight:700;
 color:var(–muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;
 }
 .c-input {
-width:100%;background:var(–s2);border:1px solid var(–border);border-radius:10px;
-padding:10px 13px;color:var(–text);font-family:‘DM Sans’,sans-serif;font-size:14px;
+width:100%;background:var(–s2) !important;border:1px solid var(–border);border-radius:10px;
+padding:10px 13px;color:var(–text) !important;font-family:‘DM Sans’,sans-serif;font-size:14px;
 outline:none;transition:border-color .2s;
 }
 .c-input:focus{border-color:var(–gold);}
 .c-row { display:flex;gap:8px; }
 .c-select {
-flex:1;background:var(–s2);border:1px solid var(–border);border-radius:10px;
-padding:10px 13px;color:var(–text);font-family:‘DM Sans’,sans-serif;font-size:13px;
+flex:1;background:var(–s2) !important;border:1px solid var(–border);border-radius:10px;
+padding:10px 13px;color:var(–text) !important;font-family:‘DM Sans’,sans-serif;font-size:13px;
 outline:none;cursor:pointer;appearance:none;
 }
 .c-select:focus{border-color:var(–gold);}
@@ -64,9 +66,11 @@ max-height:260px;overflow-y:auto;
 .country-btn {
 padding:7px 8px;border-radius:8px;border:1px solid var(–border);
 background:var(–s2);cursor:pointer;transition:all .15s;text-align:left;
+-webkit-tap-highlight-color:transparent;
 }
 .country-btn:hover{border-color:var(–border2);}
-.country-btn.selected{border-color:var(–gold);background:var(–s3);}
+.country-btn:active{transform:scale(.96);}
+.country-btn.selected{border-color:var(–gold) !important;background:var(–s3) !important;box-shadow:0 0 0 1px var(–gold);}
 .cb-flag{font-size:16px;display:block;margin-bottom:2px;}
 .cb-name{font-family:‘Syne Mono’,monospace;font-size:9px;color:var(–text);}
 
@@ -74,11 +78,12 @@ background:var(–s2);cursor:pointer;transition:all .15s;text-align:left;
 .trait-grid{display:flex;flex-wrap:wrap;gap:5px;}
 .trait-btn{
 padding:5px 10px;border-radius:20px;border:1px solid var(–border);
-background:transparent;color:var(–muted);font-family:‘Syne Mono’,monospace;
+background:var(–s2);color:var(–muted);font-family:‘Syne Mono’,monospace;
 font-size:10px;cursor:pointer;transition:all .15s;
+-webkit-tap-highlight-color:transparent;
 }
-.trait-btn:hover{border-color:var(–border2);color:var(–text);}
-.trait-btn.selected{border-color:var(–gold);color:var(–gold);background:var(–goldf,#d4a85318);}
+.trait-btn:active{transform:scale(.96);}
+.trait-btn.selected{border-color:var(–gold) !important;color:var(–gold) !important;background:#d4a85328 !important;box-shadow:0 0 0 1px var(–gold);}
 
 .start-btn {
 width:100%;padding:13px;border-radius:12px;border:none;
